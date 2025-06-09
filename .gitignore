@@ -1,0 +1,47 @@
+# === Python bytecode ===
+__pycache__/
+*.py[cod]
+*.so
+
+# === Jupyter Notebook checkpoints ===
+.ipynb_checkpoints/
+
+# === VSCode 專案設定檔（可選）===
+.vscode/
+
+# === 環境設定 ===
+.env
+*.env
+*.ini
+*.cfg
+
+# === 快取資料夾 ===
+*.log
+*.csv
+*.db
+.DS_Store
+
+# === 訓練輸出（例如模型、圖表）===
+weights/
+output/
+runs/
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+*.npz
+
+# === 測試圖像與暫存視覺化 ===
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.bmp
+
+# === TensorBoard logs ===
+logs/
+events.out.tfevents.*
+
+# === Conda / pip 環境快照（可選）===
+*.yml
+*.lock

@@ -1,0 +1,84 @@
+Collecting adjustText
+  Downloading adjustText-1.3.0-py3-none-any.whl.metadata (3.1 kB)
+Requirement already satisfied: numpy in /usr/local/lib/python3.10/dist-packages (from adjustText) (1.26.3)
+Requirement already satisfied: matplotlib in /usr/local/lib/python3.10/dist-packages (from adjustText) (3.9.2)
+Requirement already satisfied: scipy in /usr/local/lib/python3.10/dist-packages (from adjustText) (1.14.1)
+Requirement already satisfied: contourpy>=1.0.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (1.3.0)
+Requirement already satisfied: cycler>=0.10 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (4.54.1)
+Requirement already satisfied: kiwisolver>=1.3.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (1.4.7)
+Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (24.1)
+Requirement already satisfied: pillow>=8 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (10.2.0)
+Requirement already satisfied: pyparsing>=2.3.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (3.2.0)
+Requirement already satisfied: python-dateutil>=2.7 in /usr/local/lib/python3.10/dist-packages (from matplotlib->adjustText) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.10/dist-packages (from python-dateutil>=2.7->matplotlib->adjustText) (1.16.0)
+Downloading adjustText-1.3.0-py3-none-any.whl (13 kB)
+Installing collected packages: adjustText
+Successfully installed adjustText-1.3.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 24.2 -> 25.1.1
+[notice] To update, run: python3 -m pip install --upgrade pip
+
+ Weight location:/tf/yilian618/ABD_Trauma_detection/weights/Multilabel/multiple/20250606091903
+Loading dataset:   0%|          | 0/40 [00:00<?, ?it/s]Loading dataset:   2%|▎         | 1/40 [00:16<10:52, 16.73s/it]Loading dataset:   8%|▊         | 3/40 [00:17<02:51,  4.65s/it]Loading dataset:  12%|█▎        | 5/40 [00:22<02:02,  3.51s/it]Loading dataset:  15%|█▌        | 6/40 [00:31<02:48,  4.95s/it]Loading dataset:  18%|█▊        | 7/40 [00:32<02:05,  3.80s/it]Loading dataset:  22%|██▎       | 9/40 [00:35<01:31,  2.95s/it]Loading dataset:  25%|██▌       | 10/40 [00:46<02:23,  4.78s/it]Loading dataset:  28%|██▊       | 11/40 [00:46<01:44,  3.60s/it]Loading dataset:  30%|███       | 12/40 [00:48<01:28,  3.17s/it]Loading dataset:  32%|███▎      | 13/40 [00:50<01:14,  2.77s/it]Loading dataset:  35%|███▌      | 14/40 [00:56<01:39,  3.83s/it]Loading dataset:  38%|███▊      | 15/40 [01:02<01:50,  4.44s/it]Loading dataset:  40%|████      | 16/40 [01:02<01:17,  3.21s/it]Loading dataset:  45%|████▌     | 18/40 [01:06<00:57,  2.61s/it]Loading dataset:  48%|████▊     | 19/40 [01:14<01:19,  3.77s/it]Loading dataset:  50%|█████     | 20/40 [01:16<01:06,  3.34s/it]Loading dataset:  52%|█████▎    | 21/40 [01:31<02:03,  6.49s/it]Loading dataset:  57%|█████▊    | 23/40 [01:35<01:19,  4.70s/it]Loading dataset:  62%|██████▎   | 25/40 [02:28<03:15, 13.01s/it]Loading dataset:  75%|███████▌  | 30/40 [02:34<01:01,  6.20s/it]Loading dataset:  78%|███████▊  | 31/40 [02:55<01:14,  8.27s/it]Loading dataset:  85%|████████▌ | 34/40 [03:48<01:10, 11.83s/it]Loading dataset:  90%|█████████ | 36/40 [03:49<00:34,  8.74s/it]Loading dataset: 100%|██████████| 40/40 [03:53<00:00,  5.50s/it]Loading dataset: 100%|██████████| 40/40 [03:53<00:00,  5.85s/it]
+Loading dataset:   0%|          | 0/20 [00:00<?, ?it/s]Loading dataset:   5%|▌         | 1/20 [00:16<05:20, 16.89s/it]Loading dataset:  15%|█▌        | 3/20 [00:17<01:15,  4.47s/it]Loading dataset:  20%|██        | 4/20 [00:17<00:50,  3.13s/it]Loading dataset:  25%|██▌       | 5/20 [00:23<00:58,  3.89s/it]Loading dataset:  30%|███       | 6/20 [00:31<01:13,  5.26s/it]Loading dataset:  35%|███▌      | 7/20 [00:32<00:53,  4.13s/it]Loading dataset:  45%|████▌     | 9/20 [00:35<00:31,  2.85s/it]Loading dataset:  50%|█████     | 10/20 [00:48<00:54,  5.41s/it]Loading dataset:  55%|█████▌    | 11/20 [01:44<02:49, 18.84s/it]Loading dataset:  70%|███████   | 14/20 [01:45<00:53,  8.90s/it]Loading dataset:  75%|███████▌  | 15/20 [01:52<00:43,  8.62s/it]Loading dataset:  80%|████████  | 16/20 [02:10<00:42, 10.54s/it]Loading dataset:  85%|████████▌ | 17/20 [02:14<00:27,  9.13s/it]Loading dataset:  95%|█████████▌| 19/20 [02:33<00:09,  9.25s/it]Loading dataset: 100%|██████████| 20/20 [02:33<00:00,  7.68s/it]
+You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+
+ Processing begining
+Epoch 1/3, RAM used:5.101814270019531 GB
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+1/40, train_loss: 4.2681
+2/40, train_loss: 3.8929
+3/40, train_loss: 3.4674
+4/40, train_loss: 3.1093
+5/40, train_loss: 2.8071
+epoch 1 Loss: 3.5089, CE: 1.4365, AMSE: 2.0724
+one epoch runtime:0:52.87020516395569
+Liver precision: 0.0000, recall: 0.0000, f1: 0.0000
+Spleen precision: 0.0000, recall: 0.0000, f1: 0.0000
+Kidney precision: 0.0000, recall: 0.0000, f1: 0.0000
+validation one epoch runtime: 0:6.37
+validation dice: 0.0000
+precision: 0.0000, recall: 0.0000, f1: 0.0000
+validation metric: 0.0000
+Saved new best model
+Epoch 2/3, RAM used:6.251548767089844 GB
+1/40, train_loss: 2.5205
+2/40, train_loss: 2.4018
+3/40, train_loss: 2.2737
+4/40, train_loss: 2.1405
+5/40, train_loss: 2.0374
+epoch 2 Loss: 2.2748, CE: 0.4323, AMSE: 1.8425
+one epoch runtime:0:47.86412501335144
+Liver precision: 0.0000, recall: 0.0000, f1: 0.0000
+Spleen precision: 0.0000, recall: 0.0000, f1: 0.0000
+Kidney precision: 0.0000, recall: 0.0000, f1: 0.0000
+validation one epoch runtime: 0:6.26
+validation dice: 0.0000
+precision: 0.0000, recall: 0.0000, f1: 0.0000
+validation metric: 0.0000
+Trigger times: 1
+Epoch 3/3, RAM used:6.2533111572265625 GB
+1/40, train_loss: 1.9957
+2/40, train_loss: 1.9495
+3/40, train_loss: 1.8819
+4/40, train_loss: 1.8651
+5/40, train_loss: 1.8323
+epoch 3 Loss: 1.9049, CE: 0.1333, AMSE: 1.7716
+one epoch runtime:0:46.117111921310425
+Liver precision: 0.0000, recall: 0.0000, f1: 0.0000
+Spleen precision: 0.0000, recall: 0.0000, f1: 0.0000
+Kidney precision: 0.0000, recall: 0.0000, f1: 0.0000
+validation one epoch runtime: 0:6.30
+validation dice: 0.0000
+precision: 0.0000, recall: 0.0000, f1: 0.0000
+validation metric: 0.0000
+Trigger times: 2
+train completed, best_metric: 0.0000 at epoch: 1
+Loading dataset:   0%|          | 0/20 [00:00<?, ?it/s]Loading dataset:   5%|▌         | 1/20 [00:15<04:57, 15.67s/it]Loading dataset:  25%|██▌       | 5/20 [00:29<01:19,  5.32s/it]Loading dataset:  35%|███▌      | 7/20 [00:40<01:08,  5.27s/it]Loading dataset:  45%|████▌     | 9/20 [00:43<00:44,  4.04s/it]Loading dataset:  55%|█████▌    | 11/20 [00:45<00:26,  2.99s/it]
