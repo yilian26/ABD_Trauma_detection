@@ -45,3 +45,8 @@ events.out.tfevents.*
 # === Conda / pip 環境快照（可選）===
 *.yml
 *.lock
+
+# 忽略所有未命名 notebook
+Untitled*.ipynb
+#備用檔案
+RSNA_seg_train.py
