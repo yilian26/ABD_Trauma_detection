@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from utils.data_utils import convert_date
 
 
 def CGMH_inj_check(row):
@@ -57,11 +58,7 @@ def load_cgmh_data(path, rm_list):
 
     return df
 
-def convert_date(x):
-    if pd.isna(x):  # Check if the value is NaN
-        return x  # If it's NaN, return it as-is
-    else:
-        return pd.to_datetime(int(x), format="%Y%m%d")
+
 
 
 def data_split(df, test_data=None, test_fix=None, source="RSNA", ratio=(0.7, 0.1, 0.2), seed=0):

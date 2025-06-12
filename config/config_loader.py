@@ -67,6 +67,7 @@ class ConfigLoader:
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
         self._parse_configs()
+        self.config_path = config_path
 
     def _parse_configs(self):
         self.augmentation = AugmentationConfig(
@@ -135,7 +136,7 @@ class ConfigLoader:
         self.config["Data output"]["Best Test accuracy"] = str(test_accuracy_list)
         self.config["Data output"]["Best epoch"] = str(epoch_list)
 
-        with open(config_path, "w") as f:
+        with open(self.config_path, "w") as f:
             self.config.write(f)
 
     def read_output_section(self):

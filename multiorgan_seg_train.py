@@ -1,51 +1,19 @@
 import os
-import sys
-import numpy as np
-import argparse
-import pprint
-import pdb
-import time
-from datetime import datetime
-import torch
-from torch.autograd import Variable
-import torch.nn as nn
-import torch.optim as optim
-# from torch.utils.tensorboard import SummaryWriter
-# from torchsummary import summary
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import KFold
-import matplotlib.pyplot as plt
-import pandas as pd
-import cv2
-import csv
-import nibabel as nib
-import matplotlib.pyplot as plt
-import sys
-
-from models import prepare_model
-from model_engine.trainer_and_evaluator import Trainer, Evaluator
-
-
-from utils.visualizer import plot_loss_metric
-from utils.loss import LossBuilder
-
 import gc
-import math
-import json
-
-
-from utils.visualizer import plot_loss_metric
-import pickle
-# from utils.loss import FocalSegLoss, SegLoss, Muti_SegLoss, TotalSegLoss, Muti_SegLoss_negative
-
-# Data augmnetation module (based on MONAI)
-from monai.networks.nets import UNet, densenet, SENet, ViT
-from monai.apps import download_and_extract
-from monai.data import CacheDataset, DataLoader, Dataset
-from monai.config import print_config
-from monai.utils import first, set_determinism
-
+import time
+import torch
+import argparse
 import functools
+import numpy as np
+import pandas as pd
+import torch.optim as optim
+from datetime import datetime
+import matplotlib.pyplot as plt
+from models import prepare_model
+from utils.loss import LossBuilder
+from utils.visualizer import plot_loss_metric
+from utils.data_utils import str2mode, str2dataset
+from model_engine.trainer_and_evaluator import Trainer, Evaluator
 from config.config_loader import ConfigLoader, TrainingProgressTracker
 from data.dataset_builder import data_split, load_cgmh_data, load_rsna_data
 from data.transforms import get_train_transforms,  get_valid_transforms
@@ -53,7 +21,6 @@ from data.data_loaders import train_loaders,  valid_loaders, test_loaders
 
 # let all of print can be flush = ture
 print = functools.partial(print, flush=True)
-
 
 def get_parser():
     parser = argparse.ArgumentParser(description="ABD Trauma detection")
@@ -63,13 +30,13 @@ def get_parser():
         "--class_type",
         help=" The class of data. (liver, kidney, spleen, all) ",
         type=str,
+    parser.add_argument("-m", "--mode", type=str2mode, default="segmentation", help="Model mode: 0/cls=classification, 1/seg=segmentation")
+    parser.add_argument("-d", "--dataset", type=str2dataset, default="cgmh", help="Dataset source: 0/cgmh, 1/rsna, 2/multiple")
     )
     return parser
 
 
 
-
-# 進行完整一次預測
 def run_once(times=0):
     # reset config parameter
     tracker = TrainingProgressTracker()
@@ -84,13 +51,13 @@ def run_once(times=0):
         df_all_cgmh,test_data=None, test_fix=2016, source="CGMH", ratio=setting.data_split_ratio, seed=setting.seed
     )
 
-    train_df_rsna = train_df_rsna[:20]
-    valid_df_rsna = valid_df_rsna[:10]
-    test_df_rsna = test_df_rsna[:10]
+    # train_df_rsna = train_df_rsna[:20]
+    # valid_df_rsna = valid_df_rsna[:10]
+    # test_df_rsna = test_df_rsna[:10]
 
-    train_df_cgmh = train_df_cgmh[:20]
-    valid_df_cgmh = valid_df_cgmh[:10]
-    test_df_cgmh = test_df_cgmh[:10]
+    # train_df_cgmh = train_df_cgmh[:20]
+    # valid_df_cgmh = valid_df_cgmh[:10]
+    # test_df_cgmh = test_df_cgmh[:10]
 
     train_transforms = get_train_transforms(class_type=class_type, cfg = conf)
     valid_transforms = get_valid_transforms(class_type=class_type, cfg = conf)
@@ -149,7 +116,7 @@ def run_once(times=0):
     # validation is same as testing
     print(f"Best accuracy:{tracker.best_metric}")
     
-    load_weight = f"{check_path}/{tracker.best_metric:.4f}.pth"
+    load_weight = f"{check_path}/{tracker.best_metric}.pth"
     model.load_state_dict(torch.load(load_weight))
 
     # record paramter
@@ -179,20 +146,9 @@ if __name__ == "__main__":
             f"/tf/yilian618/ABD_Trauma_detection/config/{class_type}/{args.file}.ini"
         )
         
-
     conf = ConfigLoader(cfgpath)
     setting = conf.data_setting
-
-    if setting.n_classes <=2:
-        if class_type=="multiple":
-             classification_type = "Multilabel"
-        else:
-            classification_type = "Binary"
-    else:
-        if class_type=="multiple":
-            classification_type = "Multilabel"
-        else:
-            classification_type = "Multiclass"
+    classification_type = "Multilabel" if class_type == "multiple" else "Binary" if setting.n_classes <= 2 else "Multiclass"
 
     # Data progressing
     df_all_rsna, test_data = load_rsna_data(
@@ -234,6 +190,7 @@ if __name__ == "__main__":
         int(hours), int(minutes), seconds
     )
     print(all_time)
+
     # write some output information in ori ini
     conf.write_output_section(
         all_time = all_time,

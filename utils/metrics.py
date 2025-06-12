@@ -4,6 +4,7 @@ import torch.nn as nn
 from scipy.stats import sem, t, norm
 from sklearn.utils import resample  
 from sklearn.metrics import roc_curve, auc, confusion_matrix, roc_auc_score
+from sklearn import metrics
 
 
 def dice_score(preds, labels):
@@ -18,8 +19,8 @@ def dice_score(preds, labels):
     float: Dice Score.
     """
     # Ensure binary prediction
-    preds = preds > 0.5
-    labels = labels > 0.5
+    preds = torch.tensor(preds > 0.5)
+    labels = torch.tensor(labels > 0.5)
     
     intersection = (preds & labels).float().sum()  # Intersection points
     union = preds.float().sum() + labels.float().sum()  # Union points
@@ -132,11 +133,11 @@ def get_roc_CI(y_true, y_score):
     roc_curves, auc_scores, aupr_scores = [], [], []
     for j in range(1000):
         yte_true_b, yte_pred_b = resample(y_true, y_score, replace=True, random_state=j)
-        roc_curve = roc_curve(yte_true_b, yte_pred_b)
+        roc_curve_element = roc_curve(yte_true_b, yte_pred_b)
         auc_score = roc_auc_score(yte_true_b, yte_pred_b)
         aupr_score = auc(*metrics.precision_recall_curve(yte_true_b, yte_pred_b)[1::-1])
 
-        roc_curves.append(roc_curve)
+        roc_curves.append(roc_curve_element)
         auc_scores.append(auc_score)
         aupr_scores.append(aupr_score)
 

@@ -179,13 +179,13 @@ class Trainer:
             self.best_metric = metric
             self.best_metric_epoch = epoch + 1
             self.trigger_times = 0
-            torch.save(self.model.state_dict(), os.path.join(self.checkpoint_path, f"{self.best_metric:.4f}.pth"))
+            torch.save(self.model.state_dict(), os.path.join(self.checkpoint_path, f"{self.best_metric}.pth"))
             print("Saved new best model")
         else:
             self.trigger_times += 1
             print(f"Trigger times: {self.trigger_times}")
             if self.early_stop and self.early_stop - self.trigger_times <= 3:
-                torch.save(self.model.state_dict(), os.path.join(self.checkpoint_path, f"{metric:.4f}_last.pth"))
+                torch.save(self.model.state_dict(), os.path.join(self.checkpoint_path, f"{metric}_last.pth"))
                 print("save last metric model")
 
     def _early_stop(self):

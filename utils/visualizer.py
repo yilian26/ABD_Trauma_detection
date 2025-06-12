@@ -6,6 +6,7 @@ def install(package):
 
 install("adjustText")
 
+import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -347,3 +348,59 @@ def plot_vedio(path):
         file_name = f'{path}/{i}'
         img = cv2.imread(file_name)
         video.write(img)
+
+
+def generate_segmentation_heatmaps(
+    test_df,
+    image_list,
+    mask_list,
+    class_type,
+    dir_path,
+    model_type="segmentation"
+):
+    """
+    Generate heatmap visualizations from segmentation model outputs.
+
+    Args:
+        test_df (pd.DataFrame): DataFrame containing test metadata.
+        image_list (List[np.ndarray]): List of predicted image volumes.
+        mask_list (List[np.ndarray]): List of predicted mask volumes.
+        class_type (str): Type of class (e.g., liver, spleen, kidney, all, multiple).
+        dir_path (str): Path to output directory.
+        model_type (str): Model type, should be "segmentation" to trigger heatmap generation.
+    """
+    if model_type != "segmentation":
+        print("Model type is not segmentation, skipping heatmap generation.")
+        return
+
+    if class_type in ["liver", "kidney", "spleen"]:
+        filter_col = f"{class_type}_label"
+        df = test_df[test_df[filter_col] > 0]
+    else:
+        df = test_df[test_df["inj_solid"] > 0]
+
+    assert len(df) == len(image_list), "Mismatch between df and image_list lengths"
+    print(f"Generating heatmaps for {len(image_list)} samples...")
+
+    name_list = df["file_id"].values
+    for i in range(len(image_list)):
+        total_final_path = os.path.join(dir_path, "seg_heatmap", name_list[i])
+        os.makedirs(total_final_path, exist_ok=True)
+
+        # Save total view heatmap
+        plot_heatmap_one_picture(
+            mask_list[i], image_list[i], f"{total_final_path}/total_view.png"
+        )
+
+        # Save each slice
+        for j in range(image_list[i].shape[-1]):
+            plot_heatmap_detail(
+                mask_list[i][:, :, j],
+                image_list[i][:, :, j],
+                f"{total_final_path}/{j:03}.png"
+            )
+
+        # Generate video
+        plot_vedio(total_final_path)
+
+    print("Heatmap generation finished.")
