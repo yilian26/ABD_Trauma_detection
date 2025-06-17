@@ -4,6 +4,7 @@ from config.config_loader import ConfigLoader
 
 from .UNet.ResUNet import generate_model as generate_unet_model
 from .ResNet.resnet_3d import generate_model as generate_resnet3d_model
+from .UNet.ResUNet import modify_first_conv_layer
 
 
 def prepare_model(
@@ -27,11 +28,11 @@ def prepare_model(
         ).to(device)
 
         if pretrain:
-            model = resnet.generate_model(50, n_classes=1139, n_input_channels=3)
+            model = generate_resnet3d_model(50, normal = setting.normal_structure, n_classes=1139, n_input_channels=3)
             pretrain = torch.load("/tf/yilian618/ABD_classification/r3d50_KMS_200ep.pth", map_location='cpu')
             model.load_state_dict(pretrain["state_dict"])
             model.fc = nn.Linear(model.fc.in_features, setting.n_classes)
-            model = resnet.modify_first_conv_layer(model, new_in_channels = n_input_channels, pretrained=True).to(device)
+            model = modify_first_conv_layer(model, new_in_channels = n_input_channels, pretrained=True).to(device)
 
     elif architecture == "unet":
         model = generate_unet_model(

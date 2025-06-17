@@ -17,10 +17,10 @@ from utils.loss import LossBuilder
 from utils.visualizer import plot_loss_metric
 from model_engine.inference import InferenceRunner
 from config.config_loader import ConfigLoader
-from data.dataset_builder import data_split, load_cgmh_data, load_rsna_data, DataframeCombiner
+from data.dataset_builder import data_split, load_dataset, DataframeCombiner
 from data.transforms import get_valid_transforms
 from data.data_loaders import test_loaders
-from utils.data_utils import str2num_or_false, prepare_labels, str2mode
+from utils.data_utils import str2num_or_false, prepare_labels, str2mode, str2dataset
 from utils.metrics import confusion_matrix_CI, confusion_matrix_CI_multi
 
 from utils.visualizer import (
@@ -46,6 +46,7 @@ def get_parser():
     parser.add_argument("-s", "--select", type=str2num_or_false, default=False, help="The selection of data file number")
     parser.add_argument("-l", "--label", action="store_const", const=True, default=False, help="The Cam map show as label")
     parser.add_argument("-m", "--mode", type=str2mode, default="segmentation", help="Model mode: 0/cls=classification, 1/seg=segmentation")
+    parser.add_argument("-d", "--dataset_source", type=str2dataset, default="cgmh", help="Dataset source: 0/cgmh, 1/rsna, 2/multi")
     return parser
 
 
@@ -55,13 +56,20 @@ def run_evaluation(times=0):
     setting = conf.data_setting
     result_info = conf.read_output_section()
 
+    
+    test_df_rsna = None
+    test_df_cgmh = None
+
     # Split
-    _, _, test_df_rsna = data_split(
-        df_all_rsna, test_data=test_data, test_fix=None, source="RSNA", ratio=setting.data_split_ratio, seed=setting.seed
-    )
-    _, _, test_df_cgmh = data_split(
-        df_all_cgmh,test_data=None, test_fix=2016, source="CGMH", ratio=setting.data_split_ratio, seed=setting.seed
-    )
+    if df_all_rsna is not None:
+        _, _, test_df_rsna = data_split(
+            df_all_rsna, test_data=test_data, test_fix=None, source="RSNA", ratio=setting.data_split_ratio, seed=setting.seed
+        )
+
+    if df_all_cgmh is not None:
+        _, _, test_df_cgmh = data_split(
+            df_all_cgmh,test_data=None, test_fix=2016, source="CGMH", ratio=setting.data_split_ratio, seed=setting.seed
+        )
 
     # test_df_rsna = test_df_rsna[:50]
     # test_df_cgmh = test_df_cgmh[:50]
@@ -71,7 +79,7 @@ def run_evaluation(times=0):
 
     # Transforms
     test_transforms = get_valid_transforms(class_type=class_type, cfg = conf)
-    test_loader =  test_loaders(conf, test_df_cgmh, test_df_rsna, data_source="all", class_type=class_type, test_transforms=test_transforms)
+    test_loader =  test_loaders(conf, test_df_cgmh, test_df_rsna, class_type=class_type, test_transforms=test_transforms)
     
     # Model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -99,6 +107,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     class_type = args.class_type.lower()
     mode = args.mode
+    dataset_source = args.dataset_source
     if args.file.endswith("ini"):
         cfgpath = f"/tf/yilian618/ABD_Trauma_detection/config/{class_type}/{args.file}"
     else:
@@ -116,17 +125,21 @@ if __name__ == "__main__":
     classification_type = "Multilabel" if class_type == "multiple" else "Binary" if n_classes <= 2 else "Multiclass"
 
     # Load DataFrame
-    df_all_rsna, test_data = load_rsna_data(
-        rsna_path="/tf/yilian618/rsna_train_new_v2.csv",
-        noseg_path="/tf/yilian618/nosegmentation.csv",
-        test_path="/tf/jacky831006/ABD_classification/rsna_test_20240531.csv",
+    rsna_path = "/tf/yilian618/rsna_train_new_v2.csv"
+    noseg_path = "/tf/yilian618/nosegmentation.csv"
+    test_path = "/tf/jacky831006/ABD_classification/rsna_test_20240531.csv"
+    cgmh_path = "/tf/yilian618/ABD_classification/ABD_venous_all_20230709_for_label_new.csv"
+    rm_list = [21410269, 3687455, 21816625, 21410022, 39010142, 20430081]
+
+    df_all_cgmh, df_all_rsna, test_data = load_dataset(
+        dataset_source=args.dataset_source,
         seed=setting.seed,
         neg_sample=800,
-    )
-
-    df_all_cgmh = load_cgmh_data(
-        path="/tf/yilian618/ABD_classification/ABD_venous_all_20230709_for_label_new.csv",
-        rm_list=[21410269, 3687455, 21816625, 21410022, 39010142, 20430081]
+        rsna_path=rsna_path,
+        noseg_path=noseg_path,
+        test_path=test_path,
+        cgmh_path=cgmh_path,
+        rm_list=rm_list,
     )
 
         # best model output
@@ -141,9 +154,9 @@ if __name__ == "__main__":
     for k in range(len(data_file_name)):
 
         if len(data_file_name) == 1:
-            dir_path = f"/tf/yilian618/classification_torch/{class_type}/{file_name}/"
+            dir_path = f"/tf/yilian618/ABD_Trauma_detection/result/{class_type}/{file_name}/"
         else:
-            dir_path = f"/tf/yilian618/classification_torch/{class_type}/{file_name}/{k}"
+            dir_path = f"/tf/yilian618/ABD_Trauma_detection/result/{class_type}/{file_name}/{k}"
 
         if not os.path.isdir(dir_path):
             os.makedirs(dir_path)

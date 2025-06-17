@@ -5,32 +5,36 @@ from typing import List, Tuple, Optional
 from config.config_loader import ConfigLoader
 
 
-def concat_data(df1, df2, source: str, class_type: str):
+def concat_data(df_cgmh, df_rsna, class_type: str):
     """
-    Combine two dataframes into a single list of dictionaries using prepare_dataset_dicts().
+    Combine CGMH and RSNA DataFrames into a unified list of dicts for MONAI pipeline.
+
+    Args:
+        df_cgmh (DataFrame or None): CGMH data.
+        df_rsna (DataFrame or None): RSNA data.
+        class_type (str): Target organ class type.
+
+    Returns:
+        List[dict]: Combined dataset dictionaries.
     """
-    source = source.lower()
-
-    if df1 is None:
-        raise ValueError("Primary dataframe (df1) must not be None.")
-
     data = []
-    if source == "all":
-        if df2 is None:
-            raise ValueError("When source='all', df2 must be provided.")
-        data += prepare_dataset_dicts(df1, "cgmh", class_type)
-        data += prepare_dataset_dicts(df2, "rsna", class_type)
-    else:
-        data += prepare_dataset_dicts(df1, source, class_type)
+
+    if df_cgmh is not None:
+        data += prepare_dataset_dicts(df_cgmh, "cgmh", class_type)
+
+    if df_rsna is not None:
+        data += prepare_dataset_dicts(df_rsna, "rsna", class_type)
+
+    if not data:
+        raise ValueError("At least one of df_cgmh or df_rsna must be provided.")
 
     return data
 
 
 def train_loaders(
     cfg: ConfigLoader,
-    train_df,
-    train_df_extra: Optional[object] = None,
-    data_source: str = "cgmh",
+    train_df_cgmh,
+    train_df_rsna,
     class_type: str = "multiple",
     train_transforms=None,
 ):
@@ -63,7 +67,7 @@ def train_loaders(
     set_determinism(seed=seed)
 
     # Build training dataset dictionary
-    train_data_dicts = concat_data(train_df, train_df_extra, data_source, class_type)
+    train_data_dicts = concat_data(train_df_cgmh, train_df_rsna, class_type)
 
     # Create MONAI CacheDataset for efficient data loading
     train_ds = CacheDataset(
@@ -85,9 +89,8 @@ def train_loaders(
 
 def valid_loaders(
     cfg: ConfigLoader,
-    valid_df,
-    valid_df_extra: Optional[object] = None,
-    data_source: str = "cgmh",
+    valid_df_cgmh,
+    valid_df_rsna: Optional[object] = None,
     class_type: str = "multiple",
     valid_transforms=None,
 ):
@@ -103,7 +106,7 @@ def valid_loaders(
 
     set_determinism(seed=seed)
 
-    valid_data_dicts = concat_data(valid_df, valid_df_extra, data_source, class_type)
+    valid_data_dicts = concat_data(valid_df_cgmh, valid_df_rsna, class_type)
 
     valid_ds = CacheDataset(
         data=valid_data_dicts,
@@ -124,9 +127,8 @@ def valid_loaders(
 
 def test_loaders(
     cfg: ConfigLoader,
-    test_df,
-    test_df_extra: Optional[object] = None,
-    data_source: str = "cgmh",
+    test_df_cgmh,
+    test_df_rsna,
     class_type: str = "multiple",
     test_transforms=None,
 ):
@@ -142,7 +144,7 @@ def test_loaders(
 
     set_determinism(seed=seed)
 
-    test_data_dicts = concat_data(test_df, test_df_extra, data_source, class_type)
+    test_data_dicts = concat_data(test_df_cgmh, test_df_rsna, class_type)
 
     test_ds = CacheDataset(
         data=test_data_dicts,

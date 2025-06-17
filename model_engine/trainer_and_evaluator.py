@@ -95,11 +95,12 @@ class Trainer:
                 epoch_loss += loss.item()
                 step += 1
 
+                epoch_len = len(self.train_loader)
+                print(f"{step}/{epoch_len}, train_loss: {loss.item():.4f}")
+
             epoch_loss /= step
             self.tracker.epoch_loss_values.append(epoch_loss)
-            epoch_len = len(self.train_loader) * self.train_loader.batch_size
-            print(f"{step}/{epoch_len}, train_loss: {loss.item():.4f}")
-            
+            print(f"epoch {epoch + 1} Loss avg: {epoch_loss:.4f}")
             final_end_time = time.time()
             hours, rem = divmod(final_end_time-first_start_time, 3600)
             minutes, seconds = divmod(rem, 60)
@@ -109,6 +110,8 @@ class Trainer:
             evaluator = Evaluator(device=self.device, tracker=self.tracker)
             metric = evaluator.evaluate_classification(self.model, self.val_loader)
             self.scheduler.step(metric)
+            self.tracker.best_metric = self.best_metric
+            self.tracker.best_metric_epoch = self.best_metric_epoch
             self._checkpoint(metric, epoch)
             save_checkpoint(self.model, self.optimizer, self.scheduler, epoch, self.best_metric, self.best_metric_epoch, self.trigger_times, self.checkpoint_path)
             if self._early_stop():
@@ -142,7 +145,7 @@ class Trainer:
                 epoch_ce += ce_loss.item()
                 epoch_amse += amse_loss.item()
                 step += 1
-                epoch_len = len(self.train_loader) * self.train_loader.batch_size
+                epoch_len = len(self.train_loader)
                 print(f"{step}/{epoch_len}, train_loss: {loss.item():.4f}")
 
             epoch_loss /= step
@@ -153,7 +156,7 @@ class Trainer:
             self.tracker.epoch_ce_loss_values.append(epoch_ce)
             self.tracker.epoch_amse_loss_values.append(epoch_amse)
 
-            print(f"epoch {epoch + 1} Loss: {epoch_loss:.4f}, CE: {epoch_ce:.4f}, AMSE: {epoch_amse:.4f}")
+            print(f"epoch {epoch + 1} Loss avg: {epoch_loss:.4f}, CE: {epoch_ce:.4f}, AMSE: {epoch_amse:.4f}")
             
             final_end_time = time.time()
             hours, rem = divmod(final_end_time-first_start_time, 3600)
@@ -225,7 +228,7 @@ class Evaluator:
 
         metric = num_correct / total_samples
         self.tracker.metric_values.append(metric)
-        print(f'validation metric:{config.metric_values}',flush =True)
+        print(f'validation metric:{metric:.4f}',flush =True)
         return metric
 
     def evaluate_segmentation(self, model, dataloader) -> float:

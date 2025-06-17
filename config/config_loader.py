@@ -7,6 +7,9 @@ import numpy as np
 def getint_with_default(config, section, option, default):
     return config.getint(section, option) if config.has_option(section, option) else default
 
+def getfloat_with_default(config, section, option, default):
+    return config.getfloat(section, option) if config.has_option(section, option) else default
+
 @dataclass
 class AugmentationConfig:
     size: Tuple[int, int, int]
@@ -94,7 +97,7 @@ class ConfigLoader:
             gpu=gpu_parsed,
             seed=self.config.getint("Data_Setting", "seed"),
             n_classes = getint_with_default(self.config, "Data_Setting", "n_classes", 2),
-            mask_classes=self.config.getint("Data_Setting", "mask_classes"),
+            mask_classes=getint_with_default(self.config, "Data_Setting", "mask_classes", 1),
             cross_kfold=self.config.getint("Data_Setting", "cross_kfold"),
             data_split_ratio=ast.literal_eval(self.config.get("Data_Setting", "data_split_ratio")),
             architecture=self.config.get("Data_Setting", "architecture"),
@@ -105,9 +108,9 @@ class ConfigLoader:
             traning_batch_size=self.config.getint("Data_Setting", "traning_batch_size"),
             dataloader_num_workers=self.config.getint("Data_Setting", "dataloader_num_workers"),
             valid_batch_size=self.config.getint("Data_Setting", "valid_batch_size"),
-            traning_cache_rate=self.config.getfloat("Data_Setting", "traning_cache_rate"),
-            valid_cache_rate=self.config.getfloat("Data_Setting", "valid_cache_rate"),
-            test_cache_rate=self.config.getfloat("Data_Setting", "test_cache_rate"),
+            traning_cache_rate = getfloat_with_default(self.config, "Data_Setting", "traning_cache_rate", 1.0),
+            valid_cache_rate=getfloat_with_default(self.config, "Data_Setting", "valid_cache_rate", 1.0),
+            test_cache_rate=getfloat_with_default(self.config, "Data_Setting", "test_cache_rate", 1.0),
             testing_batch_size=self.config.getint("Data_Setting", "testing_batch_size"),
             init_lr=ast.literal_eval(self.config.get("Data_Setting", "init_lr")),
             lr_decay_rate=self.config.getfloat("Data_Setting", "lr_decay_rate"),

@@ -59,6 +59,45 @@ def load_cgmh_data(path, rm_list):
     return df
 
 
+def load_dataset(dataset_source: str, seed: int, neg_sample: int,
+                 rsna_path: str, noseg_path: str, test_path: str,
+                 cgmh_path: str, rm_list: list):
+    """
+    Load CGMH and RSNA datasets based on the selected data source.
+
+    Args:
+        dataset_source (str): "cgmh", "rsna", or "multiple"
+        seed (int): random seed for sampling
+        neg_sample (int): number of negative samples to keep for RSNA
+        rsna_path (str): path to RSNA dataset CSV
+        noseg_path (str): path to RSNA no-segmentation exclusion list
+        test_path (str): path to RSNA test file
+        cgmh_path (str): path to CGMH dataset CSV
+        rm_list (list): chartNo to remove from CGMH
+
+    Returns:
+        Tuple of (df_cgmh, df_rsna, test_data), unused df will be None
+    """
+    df_cgmh, df_rsna, test_data = None, None, None
+
+    if dataset_source.lower() in ["rsna", "multi", "2", "1"]:
+        df_rsna, test_data = load_rsna_data(
+            rsna_path=rsna_path,
+            noseg_path=noseg_path,
+            test_path=test_path,
+            seed=seed,
+            neg_sample=neg_sample,
+        )
+
+    if dataset_source.lower() in ["cgmh", "multi", "2", "0"]:
+        df_cgmh = load_cgmh_data(
+            path=cgmh_path,
+            rm_list=rm_list,
+        )
+
+    return df_cgmh, df_rsna, test_data
+
+
 
 
 def data_split(df, test_data=None, test_fix=None, source="RSNA", ratio=(0.7, 0.1, 0.2), seed=0):

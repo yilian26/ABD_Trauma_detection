@@ -29,6 +29,7 @@ class InferenceRunner:
         total_samples = 0
         predict_values = []
         gt_values = []
+        image_list, mask_list = [], []
 
         with torch.no_grad():
             for batch in dataloader:
@@ -36,7 +37,7 @@ class InferenceRunner:
                 labels = batch["label"].to(self.device)
 
                 outputs = self.model(inputs)
-                pre = nn.functional.softmax(output,dim=1).cpu().detach().numpy()
+                pre = nn.functional.softmax(outputs,dim=1).cpu().detach().numpy()
 
                 predict_values.append(pre)
                 gt_values.append(labels.cpu().detach().numpy())
@@ -59,7 +60,7 @@ class InferenceRunner:
         accuracy = num_correct / total_samples
         prec, rec, f1 = f1_score(predict_values, gt_values)
         print(f"Classification Accuracy: {accuracy:.4f}, f1: {f1:.4f}")
-        return (predict_values)
+        return (predict_values), image_list, mask_list
 
     def inference_segmentation(self, dataloader, threshold):
         self.model.eval()

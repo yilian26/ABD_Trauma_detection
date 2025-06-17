@@ -15,7 +15,7 @@ from utils.visualizer import plot_loss_metric
 from utils.data_utils import str2mode, str2dataset
 from model_engine.trainer_and_evaluator import Trainer, Evaluator
 from config.config_loader import ConfigLoader, TrainingProgressTracker
-from data.dataset_builder import data_split, load_cgmh_data, load_rsna_data
+from data.dataset_builder import data_split, load_dataset
 from data.transforms import get_train_transforms,  get_valid_transforms
 from data.data_loaders import train_loaders,  valid_loaders, test_loaders
 
@@ -30,9 +30,10 @@ def get_parser():
         "--class_type",
         help=" The class of data. (liver, kidney, spleen, all) ",
         type=str,
-    parser.add_argument("-m", "--mode", type=str2mode, default="segmentation", help="Model mode: 0/cls=classification, 1/seg=segmentation")
-    parser.add_argument("-d", "--dataset", type=str2dataset, default="cgmh", help="Dataset source: 0/cgmh, 1/rsna, 2/multiple")
     )
+    parser.add_argument("-m", "--mode", type=str2mode, default="segmentation", help="Model mode: 0/cls=classification, 1/seg=segmentation")
+    parser.add_argument("-d", "--dataset_source", type=str2dataset, default="cgmh", help="Dataset source: 0/cgmh, 1/rsna, 2/multi")
+    
     return parser
 
 
@@ -42,28 +43,35 @@ def run_once(times=0):
     tracker = TrainingProgressTracker()
     setting = conf.data_setting
 
+    train_df_rsna = valid_df_rsna = test_df_rsna = None
+    train_df_cgmh = valid_df_cgmh = test_df_cgmh = None
 
 
-    train_df_rsna, valid_df_rsna, test_df_rsna = data_split(
-        df_all_rsna, test_data=test_data, test_fix=None, source="RSNA", ratio=setting.data_split_ratio, seed=setting.seed
-    )
-    train_df_cgmh, valid_df_cgmh, test_df_cgmh = data_split(
-        df_all_cgmh,test_data=None, test_fix=2016, source="CGMH", ratio=setting.data_split_ratio, seed=setting.seed
-    )
+    if df_all_rsna is not None:
+        train_df_rsna, valid_df_rsna, test_df_rsna = data_split(
+            df_all_rsna, test_data=test_data, test_fix=None, source="RSNA", ratio=setting.data_split_ratio, seed=setting.seed
+        )
+        train_df_rsna = train_df_rsna[:30]
+        valid_df_rsna = valid_df_rsna[:10]
+        test_df_rsna = test_df_rsna[:10]
 
-    # train_df_rsna = train_df_rsna[:20]
-    # valid_df_rsna = valid_df_rsna[:10]
-    # test_df_rsna = test_df_rsna[:10]
+    if df_all_cgmh is not None:
+        train_df_cgmh, valid_df_cgmh, test_df_cgmh = data_split(
+            df_all_cgmh,test_data=None, test_fix=2016, source="CGMH", ratio=setting.data_split_ratio, seed=setting.seed
+        )
+        train_df_cgmh = train_df_cgmh[:20]
+        valid_df_cgmh = valid_df_cgmh[:10]
+        test_df_cgmh = test_df_cgmh[:10]
 
-    # train_df_cgmh = train_df_cgmh[:20]
-    # valid_df_cgmh = valid_df_cgmh[:10]
-    # test_df_cgmh = test_df_cgmh[:10]
+
+
+
 
     train_transforms = get_train_transforms(class_type=class_type, cfg = conf)
     valid_transforms = get_valid_transforms(class_type=class_type, cfg = conf)
     
-    train_loader = train_loaders(conf, train_df_cgmh, train_df_rsna, data_source="all", class_type=class_type, train_transforms=train_transforms)
-    valid_loader = valid_loaders(conf, valid_df_cgmh, valid_df_rsna, data_source="all", class_type=class_type, valid_transforms=valid_transforms)
+    train_loader = train_loaders(conf, train_df_cgmh, train_df_rsna, class_type=class_type, train_transforms=train_transforms)
+    valid_loader = valid_loaders(conf, valid_df_cgmh, valid_df_rsna, class_type=class_type, valid_transforms=valid_transforms)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = torch.device("cuda:0")
@@ -85,7 +93,6 @@ def run_once(times=0):
     else:
         print(f"\n Processing grid search #{times}, learning rate:{setting.init_lr[times]}", flush=True)
 
-    data_num = len(train_df_cgmh+train_df_rsna)
     # test_model = train(model, device, data_num, epochs, optimizer, loss_function, train_loader, \
     #                    val_loader, early_stop, init_lr, lr_decay_rate, lr_decay_epoch, check_path)
     trainer = Trainer(
@@ -98,7 +105,7 @@ def run_once(times=0):
         scheduler=scheduler,
         device=device,
         checkpoint_path=check_path,
-        mode="segmentation",  
+        mode=mode,  
     )
 
     trainer.checkpoint_path = check_path
@@ -112,7 +119,7 @@ def run_once(times=0):
     gc.collect()
 
     # Avoid ram out of memory
-    test_loader =  test_loaders(conf, test_df_cgmh, test_df_rsna, data_source="all", class_type=class_type, test_transforms=valid_transforms)
+    test_loader =  test_loaders(conf, test_df_cgmh, test_df_rsna, class_type=class_type, test_transforms=valid_transforms)
     # validation is same as testing
     print(f"Best accuracy:{tracker.best_metric}")
     
@@ -125,8 +132,10 @@ def run_once(times=0):
     epoch_list.append(tracker.best_metric_epoch)
 
     evaluator = Evaluator(device=device, tracker=tracker)
-    test_acc = evaluator.evaluate_segmentation(model, test_loader)
-    
+    if mode == "segmentation":
+        test_acc = evaluator.evaluate_segmentation(model, test_loader)
+    else:
+        test_acc = evaluator.evaluate_classification(model, test_loader)
     test_accuracy_list.append(test_acc)
     del test_loader
     gc.collect()
@@ -138,6 +147,8 @@ if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
     class_type = args.class_type
+    mode = args.mode
+    dataset_source = args.dataset_source
     # 讀檔路徑，之後可自己微調
     if args.file.endswith("ini"):
         cfgpath = f"/tf/yilian618/ABD_Trauma_detection/config/{class_type}/{args.file}"
@@ -150,18 +161,21 @@ if __name__ == "__main__":
     setting = conf.data_setting
     classification_type = "Multilabel" if class_type == "multiple" else "Binary" if setting.n_classes <= 2 else "Multiclass"
 
-    # Data progressing
-    df_all_rsna, test_data = load_rsna_data(
-        rsna_path="/tf/yilian618/rsna_train_new_v2.csv",
-        noseg_path="/tf/yilian618/nosegmentation.csv",
-        test_path="/tf/jacky831006/ABD_classification/rsna_test_20240531.csv",
+    rsna_path = "/tf/yilian618/rsna_train_new_v2.csv"
+    noseg_path = "/tf/yilian618/nosegmentation.csv"
+    test_path = "/tf/jacky831006/ABD_classification/rsna_test_20240531.csv"
+    cgmh_path = "/tf/yilian618/ABD_classification/ABD_venous_all_20230709_for_label_new.csv"
+    rm_list = [21410269, 3687455, 21816625, 21410022, 39010142, 20430081]
+
+    df_all_cgmh, df_all_rsna, test_data = load_dataset(
+        dataset_source=args.dataset_source,
         seed=setting.seed,
         neg_sample=800,
-    )
-
-    df_all_cgmh = load_cgmh_data(
-        path="/tf/yilian618/ABD_classification/ABD_venous_all_20230709_for_label_new.csv",
-        rm_list=[21410269, 3687455, 21816625, 21410022, 39010142, 20430081]
+        rsna_path=rsna_path,
+        noseg_path=noseg_path,
+        test_path=test_path,
+        cgmh_path=cgmh_path,
+        rm_list=rm_list,
     )
 
     
