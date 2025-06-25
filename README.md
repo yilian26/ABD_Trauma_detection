@@ -8,6 +8,7 @@ A deep learning pipeline for multi-organ segmentation and injury classification 
 - Configurable via `.ini` files
 - Training logs and visualizations included
 
+
 ## Contents
 - [Folder Structure](#folder-structure)
 - [Requirements](#requirements)
@@ -22,6 +23,7 @@ A deep learning pipeline for multi-organ segmentation and injury classification 
 - [Pretrained Weights](#pretrained-weights)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
+
 
 ## Folder Structure
 ```
@@ -49,6 +51,7 @@ ABD_Trauma_detection/
 
 >`.ini` configuration files should be placed in `config/<class_type>/`, such as `config/multiple/pretrain_resnet_unet_multidataset_256_64_nagative.ini`.
 
+
 ## Requirements
 
 - Python 3.8+
@@ -57,18 +60,17 @@ ABD_Trauma_detection/
 - MONAI 1.3+
 - CUDNN 8.4+
 
+
 ## Install Packages
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
 
 ## Running the Project
 Follow these steps to set up and run the project:
 
----
 
 #### **1. Clone the Repository**
 ```bash
@@ -116,7 +118,6 @@ To visualize model attention via Grad-CAM or Layer-CAM:
 python3 gradcam.py -f pretrain_resnet_unet_multidataset_256_64_nagative -c multiple > log/pretrain_resnet_unet_multidataset_256_64_nagative_gradcam.log 2>&1
 ```
 
----
 
 ### Notes
 
@@ -124,8 +125,6 @@ python3 gradcam.py -f pretrain_resnet_unet_multidataset_256_64_nagative -c multi
 - Training logs are saved in the `log/` directory
 - Pretrained weights are saved in `weights/Multilabel/multiple/<timestamp>/`
 - You can freely change `-f`, `-c`, `-m`, and `-d` to fit different use cases
-
----
 
 
 ## Inference Weights
