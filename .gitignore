@@ -25,6 +25,7 @@ __pycache__/
 weights/
 output/
 runs/
+result/
 checkpoints/
 *.pth
 *.pt
