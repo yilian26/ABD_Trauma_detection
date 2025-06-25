@@ -8,7 +8,7 @@ A deep learning pipeline for multi-organ segmentation and injury classification 
 - Configurable via `.ini` files
 - Training logs and visualizations included
 
-### Contents
+## Contents
 - [Folder Structure](#folder-structure)
 - [Requirements](#requirements)
 - [Install Packages](#install-packages)
@@ -23,7 +23,7 @@ A deep learning pipeline for multi-organ segmentation and injury classification 
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
 
-### Folder Structure
+## Folder Structure
 ```
 ABD_Trauma_detection/
 ├── config/                      # Configuration loader and .ini files
@@ -47,9 +47,9 @@ ABD_Trauma_detection/
 
 ```
 
-> 📁 `.ini` configuration files should be placed in `config/<class_type>/`, such as `config/multiple/pretrain_resnet_unet_multidataset_256_64_nagative.ini`.
+>`.ini` configuration files should be placed in `config/<class_type>/`, such as `config/multiple/pretrain_resnet_unet_multidataset_256_64_nagative.ini`.
 
-### Requirements
+## Requirements
 
 - Python 3.8+
 - PyTorch 2.0+
@@ -57,7 +57,7 @@ ABD_Trauma_detection/
 - MONAI 1.3+
 - CUDNN 8.4+
 
-### Install Packages
+## Install Packages
 
 ```bash
 pip install -r requirements.txt
@@ -65,7 +65,7 @@ pip install -r requirements.txt
 
 ---
 
-### Running the Project
+## Running the Project
 Follow these steps to set up and run the project:
 
 ---
@@ -128,7 +128,7 @@ python3 gradcam.py -f pretrain_resnet_unet_multidataset_256_64_nagative -c multi
 ---
 
 
-### Inference Weights
+## Inference Weights
 
 [Download from Google Drive](https://drive.google.com/drive/folders/1fF4vXQpSHqIaMADiQkCM9W9TDX7n6CKt?usp=drive_link)
 
@@ -150,12 +150,12 @@ weights/
 > Ensure that folder and filename exactly match the `data file name` and `best accuracy` from the `.ini` file.  
 > You may use `--select` to specify one if there are multiple; otherwise, it will iterate through all.
 
----
 
-### Pretrained Weights
+## Pretrained Weights
 
 - We used `r3d50_KMS_200ep.pth` from:
   [kenshohara/3D-ResNets-PyTorch](https://github.com/kenshohara/3D-ResNets-PyTorch)
+
 
 ## Acknowledgements
 
