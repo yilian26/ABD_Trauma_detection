@@ -9,6 +9,8 @@ install("adjustText")
 import os
 import cv2
 import numpy as np
+from tqdm.auto import tqdm
+import concurrent.futures
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
 from sklearn.metrics import roc_curve, auc, confusion_matrix, roc_auc_score
@@ -330,24 +332,50 @@ def plot_heatmap_one_picture(heatmap, img, save_path, fig_size=(5,100)):
     plt.close(fig)
 
 def plot_vedio(path):
-    #path = '/data/jacky831006/classification_torch/grad_cam_image/all_test_config_2_new/AIS12/CGMHTR03273'
-    img = cv2.imread(f'{path}/000.png')
-    size = (img.shape[1],img.shape[0])
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
+    """
+    將指定目錄下的 PNG 檔案依序讀入並寫入為 AVI 影片
+    """
+    # 取得檔案清單（僅限 png）
+    files = sorted([f for f in os.listdir(path) if f.endswith(".png")])
+
+    if not files:
+        print(f"No PNG files found in {path}, skipping video generation.")
+        return
+
+    # 讀取第一張圖像確認尺寸
+    first_img_path = os.path.join(path, files[0])
+    img = cv2.imread(first_img_path)
+
+    if img is None:
+        print(f"Failed to read first image: {first_img_path}")
+        return
+
+    size = (img.shape[1], img.shape[0])  # (width, height)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+    # 設定影片輸出路徑
     vedio_path_list = path.split('/')
-    vedio_path_list.insert(-1,'video')
-    video = cv2.VideoWriter(f'{"/".join(vedio_path_list)}.avi', fourcc, 20, size) # 檔名, 編碼格式, 偵數, 影片大小(圖片大小)
+    vedio_path_list.insert(-1, 'video')
+    video_path = f'{"/".join(vedio_path_list)}.avi'
 
     dir_path = '/'.join(vedio_path_list[:-1])
-    if not os.path.isdir(dir_path):
-        os.makedirs(dir_path)
-        
-    files = os.listdir(path)
-    files.sort()
-    for i in files:
-        file_name = f'{path}/{i}'
-        img = cv2.imread(file_name)
+    os.makedirs(dir_path, exist_ok=True)
+
+    # 建立影片寫入器
+    video = cv2.VideoWriter(video_path, fourcc, 20, size)
+
+    for fname in files:
+        file_path = os.path.join(path, fname)
+        img = cv2.imread(file_path)
+        if img is None:
+            print(f"Skipping unreadable file: {file_path}")
+            continue
+        if img.shape[:2] != size[::-1]:  # 高寬不一致會報錯
+            img = cv2.resize(img, size)
         video.write(img)
+
+    video.release()
+    print(f"Video saved to {video_path}")
 
 
 def generate_segmentation_heatmaps(
@@ -404,3 +432,25 @@ def generate_segmentation_heatmaps(
         plot_vedio(total_final_path)
 
     print("Heatmap generation finished.")
+
+def process_plot_detail(j, heatmap_total, image, final_path):
+    plot_heatmap_detail(
+        heatmap_total[:, :, j], image[:, :, j], f"{final_path}/{j:03}.png"
+    )
+
+
+def process_plot_multiprocess(heatmap_total, image, final_path, num_cores=10):
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=num_cores
+    ) as executor:  # 創建線程池
+        futures = [
+            executor.submit(process_plot_detail, j, heatmap_total, image, final_path)
+            for j in range(image.shape[-1])
+        ]  # 將函數和相應的參數提交給線程池執行
+        for _ in tqdm(
+            concurrent.futures.as_completed(futures),
+            total=len(futures),
+            desc="GradCam plot progressing",
+        ):  # 確認函數迭代已完成的任務並用tqdm進行進度調顯示
+            pass
+    plot_vedio(final_path)

@@ -44,7 +44,6 @@ def get_parser():
     parser.add_argument("-c", "--class_type", type=str, help="The class of data. (liver, kidney, spleen, all, multiple)")
     parser.add_argument("-f", "--file", type=str, help="The config file name")
     parser.add_argument("-s", "--select", type=str2num_or_false, default=False, help="The selection of data file number")
-    parser.add_argument("-l", "--label", action="store_const", const=True, default=False, help="The Cam map show as label")
     parser.add_argument("-m", "--mode", type=str2mode, default="segmentation", help="Model mode: 0/cls=classification, 1/seg=segmentation")
     parser.add_argument("-d", "--dataset_source", type=str2dataset, default="cgmh", help="Dataset source: 0/cgmh, 1/rsna, 2/multi")
     return parser
@@ -171,7 +170,7 @@ if __name__ == "__main__":
                 y_pre, y_label, organ = y_pred, y_label_data, organ_list[i]
 
             if n_classes <=2:
-                optimal_th = plot_roc(y_pre, y_label, organ, dir_path, f"{file_name}_{k}_{organ}")
+                optimal_th = plot_roc(y_pre, y_label, organ, dir_path, f"{file_name}_{organ}")
                 print(f"{organ} cutoff value:{optimal_th}")
 
                 pos_list = []
@@ -181,7 +180,7 @@ if __name__ == "__main__":
                         pos_list.append(y_pre_value[1])
                     else:
                         neg_list.append(y_pre_value[1])
-                plot_dis(pos_list, neg_list, dir_path, f"{file_name}_{k}_{organ}") 
+                plot_dis(pos_list, neg_list, dir_path, f"{file_name}_{organ}") 
 
                 y_pre_n = list(np.where(y_pre[..., 1]> optimal_th,1,0))
                 y_list = list(y_label)
@@ -189,7 +188,7 @@ if __name__ == "__main__":
                 test_df[f"pre_label_{organ}"] = np.array(y_pre_n)
                 test_df[f"ori_pre_{organ}"] = np.array(y_pre[..., 1])
                 test_df = test_df[test_df.columns.drop(list(test_df.filter(regex="Unnamed")))]
-                test_df_path = f"{dir_path}/{file_name}_{k}.csv"
+                test_df_path = f"{dir_path}/{file_name}.csv"
                 test_df.to_csv(test_df_path, index=False)
 
                 perd = test_df[f"ori_pre_{organ}"].values
@@ -197,7 +196,7 @@ if __name__ == "__main__":
                 result = confusion_matrix(y_label, perd_label)
                 (tn, fp, fn, tp) = confusion_matrix(y_list, perd_label).ravel()
                 plot_confusion_matrix(result, classes=[0, 1], title=f"Confusion matrix_{organ}")
-                plt.savefig(f"{dir_path}/{file_name}_{k}_{organ}.png")
+                plt.savefig(f"{dir_path}/{file_name}_{organ}.png")
                 plt.close()
 
                 ACC, PPV, NPV, Sensitivity, Specificity = confusion_matrix_CI(tn, fp, fn, tp)
@@ -207,7 +206,7 @@ if __name__ == "__main__":
                 result = confusion_matrix(y_label, y_pre_n)
                 (tn, fp, fn, tp) = confusion_matrix(y_list, y_pre_n).ravel()
                 plot_confusion_matrix(result, classes=[0, 1], title=f"Confusion matrix_{organ}")
-                plt.savefig(f"{dir_path}/{file_name}_{k}_{organ}_Modifed.png")
+                plt.savefig(f"{dir_path}/{file_name}_{organ}_Modifed.png")
                 plt.close()
                 ACC, PPV, NPV, Sensitivity, Specificity = confusion_matrix_CI(tn, fp, fn, tp)
                 print(f"Modifed : {organ} Test Accuracy: {ACC}")
@@ -221,17 +220,17 @@ if __name__ == "__main__":
                 test_df[f"ori_pre_low_{organ}"] = np.array(y_pre[...,1])
                 test_df[f"ori_pre_high_{organ}"] = np.array(y_pre[...,2])
                 test_df = test_df[test_df.columns.drop(list(test_df.filter(regex="Unnamed")))]
-                test_df_path = f"{dir_path}/{file_name}_{k}.csv"
+                test_df_path = f"{dir_path}/{file_name}.csv"
                 test_df.to_csv(test_df_path, index=False)
                 
                 
-                optimal_th = plot_multi_class_roc(test_df[[f"ori_pre_health_{organ}", f"ori_pre_low_{organ}", f"ori_pre_high_{organ}"]].values, y_label, n_classes, organ, dir_path, f"{file_name}_{k}_{organ}")
+                optimal_th = plot_multi_class_roc(test_df[[f"ori_pre_health_{organ}", f"ori_pre_low_{organ}", f"ori_pre_high_{organ}"]].values, y_label, n_classes, organ, dir_path, f"{file_name}_{organ}")
                 print(f"{organ}: cutoff value:{optimal_th}")
 
                 y_list = list(y_label)
                 result = confusion_matrix(y_list, y_pre_n)
                 plot_confusion_matrix_multi(result, classes=[0, 1,2], title=organ)
-                plt.savefig(f"{dir_path}/{file_name}_{k}_{organ}.png")
+                plt.savefig(f"{dir_path}/{file_name}_{organ}.png")
                 plt.close()
                 metrics = confusion_matrix_CI_multi(result)
                 print(metrics)
@@ -245,7 +244,7 @@ if __name__ == "__main__":
                 
                 result = confusion_matrix(y_list, adj_testing)
                 plot_confusion_matrix_multi(result, classes=[0, 1,2], title=organ)
-                plt.savefig(f"{dir_path}/{file_name}_{k}_{organ}_Modifed.png")
+                plt.savefig(f"{dir_path}/{file_name}_{organ}_Modifed.png")
                 plt.close()
                 metrics = confusion_matrix_CI_multi(result)
                 print(metrics)
