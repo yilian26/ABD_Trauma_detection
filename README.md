@@ -156,12 +156,11 @@ weights/
   [kenshohara/3D-ResNets-PyTorch](https://github.com/kenshohara/3D-ResNets-PyTorch)
 
 
-## Acknowledgements
+### References
 
-We gratefully acknowledge the following repositories:
+- Kensho Hara, Hirokatsu Kataoka, and Yutaka Satoh. [**3D-ResNets-PyTorch**](https://github.com/kenshohara/3D-ResNets-PyTorch) – Pretrained weights `r3d50_KMS_200ep.pth` were used as the ResNet50 backbone in this project.
 
-- [kenshohara/3D-ResNets-PyTorch](https://github.com/kenshohara/3D-ResNets-PyTorch) – Used `r3d50_KMS_200ep.pth` as pretrained ResNet50 backbone.
-- [yizt/Grad-CAM.pytorch](https://github.com/yizt/Grad-CAM.pytorch/tree/master/detection) – Reference implementation for Grad-CAM visualization.
+- Yizt. [**Grad-CAM.pytorch**](https://github.com/yizt/Grad-CAM.pytorch/tree/master/detection) – This project refers to the Grad-CAM implementation for visualizing model attention.
 
 
 ### License
